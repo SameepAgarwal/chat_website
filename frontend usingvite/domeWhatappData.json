@@ -1,0 +1,113 @@
+{
+    "whole_list": [
+        {
+            "messages": [
+                {
+                    "_id": "",
+                    "message_sender_id": "Person1",
+                    "message": "I am Person 1",
+                    "Date and Time": ""
+                },
+                {
+                    "_id": "",
+                    "message_sender_id": "Person1",
+                    "message": "What is Your Name?",
+                    "Date and Time": ""
+                },
+                {
+                    "_id": "",
+                    "message_sender_id": "Me",
+                    "message": "I am Me",
+                    "Date and Time": ""
+                },
+                {
+                    "_id": "",
+                    "message_sender_id": "Person1",
+                    "message": "Hello Me",
+                    "Date and Time": ""
+                },
+                {
+                    "_id": "",
+                    "message_sender_id": "Me",
+                    "message": "Hello Person 1",
+                    "Date and Time": ""
+                }
+            ],
+            "name": "Person 1",
+            "latest_msg": "I am Most Current",
+            "Latest_msg_time": "Date-current",
+            "group": "false",
+            "sender_name": "",
+            "icon": true
+        },
+        {
+            "messages": [
+                {
+                    "_id": "",
+                    "message_sender_id": "Person2",
+                    "message": "I am Totally Different Person 2",
+                    "Date and Time": ""
+                },
+                {
+                    "_id": "",
+                    "message_sender_id": "Me",
+                    "message": "My Name is",
+                    "Date and Time": ""
+                },
+                {
+                    "_id": "",
+                    "message_sender_id": "Me",
+                    "message": "Me",
+                    "Date and Time": ""
+                },
+                {
+                    "_id": "",
+                    "message_sender_id": "Person2",
+                    "message": "Hello Me",
+                    "Date and Time": ""
+                },
+                {
+                    "_id": "",
+                    "message_sender_id": "Me",
+                    "message": "Hello Person 2",
+                    "Date and Time": ""
+                }
+            ],
+            "name": "Person 2",
+            "latest_msg": "I am Most Current",
+            "Latest_msg_time": "Date-current",
+            "group": "false",
+            "sender_name": "",
+            "icon": false
+        },
+        {
+            "messages": [
+                {
+                    "_id": "",
+                    "message_sender_id": "Person1",
+                    "message": "I am Person 1",
+                    "Date and Time": ""
+                },
+                {
+                    "_id": "",
+                    "message_sender_id": "Person2",
+                    "message": "I am Person 2",
+                    "Date and Time": ""
+                },
+                {
+                    "_id": "",
+                    "message_sender_id": "Me",
+                    "message": "I am Me",
+                    "Date and Time": ""
+                }
+            ],
+            "name": "Group 1",
+            "group-creator": "",
+            "latest_msg": "I am Most Current",
+            "Latest_msg_time": "Date-current",
+            "group": "true",
+            "icon": true,
+            "icon-addres": "../../sameep.jpeg"
+        }
+    ]
+}
