@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import styled from 'styled-components';
 import { useGlobalData } from "./reducer";
 import { useNavigate } from "react-router-dom";
-const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'https://sameep-chat-website.onrender.com/';
+// const ENDPOINT = 'http://localhost:8000';
 
 const Loginpage = (props) => {
     const { state, dispatch } = useGlobalData();

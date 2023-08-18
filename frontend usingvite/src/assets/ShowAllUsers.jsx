@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGlobalData } from "./reducer";
 import styled from "styled-components";
-const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'https://sameep-chat-website.onrender.com/';
+// const ENDPOINT = 'http://localhost:8000';
 
 const ShowAllUsers = () => {
     const [allUsers, setAllUsers] = useState([]);

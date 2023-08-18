@@ -4,7 +4,8 @@ import whole_list from "../../domeWhatappData.json";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGlobalData } from "./reducer";
 import io from 'socket.io-client';
-const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'https://sameep-chat-website.onrender.com/';
+// const ENDPOINT = 'http://localhost:8000';
 
 var socket;
 
