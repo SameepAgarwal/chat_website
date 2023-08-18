@@ -8,8 +8,9 @@ import SelectedUserShow from './assets/SelectedUserShow';
 import ShowAllUsers from './assets/ShowAllUsers';
 import VideoUploader from './assets/Video';
 import { useGlobalData } from './assets/reducer';
+const ENDPOINT = '';
+// const ENDPOINT = 'https://sameep-chat-website.onrender.com';
 // const ENDPOINT = 'http://localhost:8000';
-const ENDPOINT = 'https://sameep-chat-website.onrender.com/';
 
 const userPersonalDetail = {
   name: "Sameep",
