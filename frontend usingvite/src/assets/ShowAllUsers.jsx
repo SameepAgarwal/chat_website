@@ -20,7 +20,7 @@ const ShowAllUsers = () => {
     const startConversation = async (index) => {
         console.log(allUsers);
         console.log(index);
-        const response_sender = await fetch(`http://localhost:8000/startconversation/${id}`, {
+        const response_sender = await fetch(`${ENDPOINT}/startconversation/${id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -30,7 +30,7 @@ const ShowAllUsers = () => {
                 _id: allUsers[index]._id
             }),
         });
-        const response_receiver = await fetch(`http://localhost:8000/startconversation/${allUsers[index]._id}`, {
+        const response_receiver = await fetch(`${ENDPOINT}/startconversation/${allUsers[index]._id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
