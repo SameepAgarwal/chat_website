@@ -44,7 +44,7 @@ const Loginpage = (props) => {
                     <label>Confirm Password</label>
                     <input name="cpassword" type="password" onChange={inputEvent} value={loginData.cpassword} placeholder="Confirm Password" />
                 </div>
-                <div>
+                {/* <div>
                     <input type="file" accept="image/*" id="imageInput" onChange={(event) => {
                         const imageInput = document.getElementById('imageInput');
                         const previewImage = document.getElementById('previewImage');
@@ -67,7 +67,7 @@ const Loginpage = (props) => {
                         const imageUrl = previewImage.src;
                         console.log({ 'Image URL:': imageUrl });
                     }}>Convert and Use</button>
-                </div>
+                </div> */}
                 <button type="submit" onClick={async (e) => {
                     e.preventDefault();
                     const { name, number, email, password, cpassword } = loginData;
