@@ -101,7 +101,7 @@ const UserShow = (props) => {
                                                                 <p>{curObj.latest_message_time}</p>
                                                             </div>
                                                             <div>
-                                                                {curObj.messages[curObj.messages.length - 1].sender_name}: {curObj.latest_message}
+                                                                {curObj.messages[curObj.messages.length - 1].sender_name ? curObj.messages[curObj.messages.length - 1].sender_name : null}: {curObj.latest_message}
                                                             </div>
                                                         </div>
                                                     </div>
