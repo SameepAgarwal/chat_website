@@ -4,7 +4,8 @@ import styled from "styled-components";
 import whole_list from "../../domeWhatappData.json";
 import SelectedUserShow from "./SelectedUserShow";
 import { useGlobalData } from "../assets/reducer";
-const ENDPOINT = 'http://localhost:8000';
+// const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'https://sameep-chat-website.onrender.com';
 
 const UserShow = (props) => {
     const ifPhotoAdded = true;
