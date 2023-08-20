@@ -4,9 +4,7 @@ import styled from "styled-components";
 import whole_list from "../../domeWhatappData.json";
 import SelectedUserShow from "./SelectedUserShow";
 import { useGlobalData } from "../assets/reducer";
-const ENDPOINT = '';
-// const ENDPOINT = 'https://sameep-chat-website.onrender.com';
-// const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'http://localhost:8000';
 
 const UserShow = (props) => {
     const ifPhotoAdded = true;
@@ -15,11 +13,18 @@ const UserShow = (props) => {
     const { state, dispatch } = useGlobalData();
     const id = localStorage.getItem("token");
     const { setLoginStatus } = props;
+    const [loadingAnimation, setLoadingAnimation] = useState(false);
 
     const findAllUsers = async () => {
-        const response = await fetch(`${ENDPOINT}/getusers/${id}`);
-        const currUserData = await response.json();
-        setAllUsersFoundChatWith(currUserData);
+        setLoadingAnimation(true);
+        try {
+            const response = await fetch(`${ENDPOINT}/getusers/${id}`);
+            const currUserData = await response.json();
+            setAllUsersFoundChatWith(currUserData);
+            setLoadingAnimation(false);
+        } catch (error) {
+            console.log("error", error);
+        }
     };
 
     useEffect(() => {
@@ -29,11 +34,11 @@ const UserShow = (props) => {
 
     return (
         <UserMainDiv>
-            <div style={{ marginBottom: '5rem' }}>
+            <div className="my-details-div" style={{ marginBottom: '5rem' }}>
                 <div className="my-options">
                     {
                         ifPhotoAdded ?
-                            <img src="../../../sameep.jpeg" alt="My Image" className="my-image" />
+                            <img src="../../sameep.jpeg" alt="My Image" className="my-image" />
                             :
                             <div className="my-image">
                                 <i className="fa-solid fa-user"></i>
@@ -65,43 +70,49 @@ const UserShow = (props) => {
                         </div>
                     </div>
                 </div>
-                <div>{allUsersFoundChatWith ? allUsersFoundChatWith.name : null}:</div>
+                <div className="user-name-main">{allUsersFoundChatWith ? allUsersFoundChatWith.name : null}</div>
             </div>
             <div className="users-list">
                 {
-                    allUsersFoundChatWith ?
-                        <>{
-                            allUsersFoundChatWith.whole_list.length > 0 ?
-                                allUsersFoundChatWith.whole_list.map((curObj, index) => {
-                                    return (
-                                        <div className="user-class" key={index} onClick={() => {
-                                            navigate(`/user/${id}/${curObj._id}`);
-                                        }}>
-                                            {
-                                                curObj.icon ?
-                                                    <img src="../../../sameep.jpeg" alt="My Image" className="user-image" />
-                                                    :
-                                                    <div className="user-image">
-                                                        <i className="fa-solid fa-user"></i>
+                    loadingAnimation ?
+                        <div style={{ width: '100%', textAlign: 'center' }}><i className="fa-solid fa-spinner fa-spin-pulse fa-2xl"></i></div> :
+                        <>
+                            {
+                                allUsersFoundChatWith ?
+                                    <>{
+                                        allUsersFoundChatWith.whole_list.length > 0 ?
+                                            allUsersFoundChatWith.whole_list.map((curObj, index) => {
+                                                return (
+                                                    <div className="user-class" key={index} onClick={() => {
+                                                        navigate(`/user/${id}/${curObj._id}`);
+                                                    }}>
+                                                        {
+                                                            curObj.icon ?
+                                                                <img src="../../../sameep.jpeg" alt="My Image" className="user-image" />
+                                                                :
+                                                                <div className="user-image">
+                                                                    <i className="fa-solid fa-user"></i>
+                                                                </div>
+                                                        }
+                                                        <div className="user-details">
+                                                            <div className="user-name">
+                                                                <h4>{curObj.name}</h4>
+                                                                <p>{curObj.latest_message_time}</p>
+                                                            </div>
+                                                            <div>
+                                                                {curObj.messages[curObj.messages.length - 1].sender_name}: {curObj.latest_message}
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                            }
-                                            <div className="user-details">
-                                                <div className="user-name">
-                                                    <h4>{curObj.name}</h4>
-                                                    <p>{curObj.latest_message_time}</p>
-                                                </div>
-                                                <div>
-                                                    {curObj.latest_message}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                                : <h4 className="no-users-msg">No Users Yet</h4>
-                        }
+                                                );
+                                            })
+                                            : <h4 className="no-users-msg">No Users Yet</h4>
+                                    }
+                                    </>
+                                    :
+                                    null
+                            }
                         </>
-                        :
-                        null
                 }
             </div>
         </UserMainDiv>
@@ -113,10 +124,18 @@ const UserMainDiv = styled.div`
 background-color: #2e2e2e;
 display: flex;
 flex-direction: column;
-min-width: 10rem;
+min-width: 30rem;
 resize: horizontal;
 overflow-x: hidden;
 height: 100vh;
+
+.my-details-div{
+    .user-name-main{
+        padding: 1rem;
+        font-size: 2.5rem;
+        text-decoration: underline;
+    }
+}
 
 .my-options{
     display: flex;
@@ -210,6 +229,9 @@ height: 100vh;
     }
 }
 
+@media screen and (max-width: 850px) {
+    width: 100%;
+}
 `;
 
 export default UserShow;

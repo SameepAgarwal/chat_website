@@ -3,10 +3,9 @@ import styled from 'styled-components';
 import whole_list from "../../domeWhatappData.json";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGlobalData } from "./reducer";
+import EmojiPicker from 'emoji-picker-react';
 import io from 'socket.io-client';
-const ENDPOINT = '';
-// const ENDPOINT = 'https://sameep-chat-website.onrender.com';
-// const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'http://localhost:8000';
 
 var socket;
 
@@ -16,6 +15,7 @@ const SelectedUserShow = (props) => {
     const [messages, setMessages] = useState([]);
     const [newMessages, setNewMessages] = useState('');
     const [user, setUser] = useState();
+    const navigate = useNavigate();
 
     const [loadingAnimation, setLoadingAnimation] = useState(false);
     let scroll_to_bottom = document.querySelector('#scroll-msg');
@@ -24,6 +24,9 @@ const SelectedUserShow = (props) => {
     function scrollBottom(element) {
         element.scroll({ top: element.scrollHeight, behavior: "smooth" });
     }
+    const handleEmojiSelect = (emoji) => {
+        setNewMessages(newMessageObject + emoji.native);
+    };
 
     const findUserMessages = async () => {
         const response = await fetch(`${ENDPOINT}/getmessages/${id}/${chatId}`);
@@ -90,6 +93,7 @@ const SelectedUserShow = (props) => {
         setLoadingAnimation(false);
         if (scroll_to_bottom) scrollBottom(scroll_to_bottom);
     };
+
     useEffect(() => {
         fetchMessages();
     }, [chatId]);
@@ -118,6 +122,17 @@ const SelectedUserShow = (props) => {
     return (
         <SelectedUser>
             <div className="user-details-div">
+                {
+                    window.innerWidth < 850 ?
+                        <i class="fa-solid fa-arrow-left" style={{
+                            cursor: 'pointer',
+                            backgroundColor: '#2e2e2e',
+                            padding: '1rem',
+                            borderRadius: '50%'
+                        }} onClick={() => {
+                            navigate('/');
+                        }}></i> : null
+                }
                 <img src="../../sameep.jpeg" alt="My Image" className="selected-user-image" />
                 <h4>
                     {user !== undefined ? user.name : <></>}
@@ -184,9 +199,35 @@ const SelectedUserShow = (props) => {
                 }
             </div>
             <div className="send-message-div">
+                <div>
+                    <div className="emoji-picker" style={{
+
+                    }}>
+                        <EmojiPicker
+                            onEmojiClick={(emoji) => {
+                                setNewMessages(newMessages + emoji.emoji);
+                                const emojiPicker = document.querySelector('.emoji-picker');
+                                emojiPicker.style.display = 'none';
+                                const message_input = document.querySelector('.message-input');
+                                message_input.focus();
+                            }}
+                            width="300px"
+                        />
+                    </div>
+                    <span onClick={() => {
+                        const emojiPicker = document.querySelector('.emoji-picker');
+                        if (emojiPicker.style.display != 'block') {
+                            emojiPicker.style.display = 'block';
+                        }
+                        else {
+                            emojiPicker.style.display = 'none';
+                        }
+                    }} style={{ cursor: 'pointer', padding: '0.3rem 1rem' }}>😊</span>
+                </div>
                 <input type="text" className="message-input" autoComplete="off" onChange={(e) => {
                     setNewMessages(e.target.value);
                 }} onKeyDown={(press) => {
+                    ``;
                     if (press.key === 'Enter') {
                         sendMessages();
                     }
@@ -207,11 +248,12 @@ const SelectedUserShow = (props) => {
 const SelectedUser = styled.section`
     display: flex;
     flex-direction: column;
-    /* justify-content: center; */
-    /* align-items: center; */
-    width: 100%;
-    background: linear-gradient(#adafae , rgba(101, 103, 105, 0.93));
+    justify-content: center;
+    align-items: center;
+    width: 100%;    
     height: 100vh;
+    max-height: 100vh;
+    background: linear-gradient(#adafae , rgba(101, 103, 105, 0.93));   
     .user-details-div{
         display: flex;
         flex-direction: row;
@@ -222,7 +264,9 @@ const SelectedUser = styled.section`
         width: 100%;
         background-color: #696767;
         h4{
-
+            ul{
+                flex-direction: column;
+            }
         }
         .selected-user-image{
             height: 5rem;
@@ -259,6 +303,7 @@ const SelectedUser = styled.section`
         padding: 1rem 0rem;
         gap: 1rem;
         overflow: scroll;
+        margin-top: auto;
         
         &::-webkit-scrollbar{
             display: none;
@@ -351,6 +396,17 @@ const SelectedUser = styled.section`
         align-items: center;
         width: 100%;
         background-color: #2a2929;
+        position: relative;
+        margin-top: auto;
+        .emoji-picker{
+                display: none;
+                position: absolute;
+                bottom: 5rem;
+                ul{
+                    display: flex;
+                    flex-direction: column !important;
+                }
+            }
         input{
             width: 100%;
             border: none;

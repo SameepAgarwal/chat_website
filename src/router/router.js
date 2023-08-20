@@ -117,7 +117,11 @@ router.put('/newmessage/sender/:id/:chatId', async (req, res) => {
         "whole_list._id": chatId
     }, {
         $push: {
-            "whole_list.$.messages": req.body
+            "whole_list.$.messages": req.body,
+        },
+        $set: {
+            "whole_list.$.latest_message": message,
+            "whole_list.$.latest_message_time": message_time
         }
     }, {
         new: true,
@@ -155,6 +159,10 @@ router.put('/newmessage/receiver/:id/:senderId', async (req, res) => {
     }, {
         $push: {
             "whole_list.$.messages": req.body
+        },
+        $set: {
+            "whole_list.$.latest_message": message,
+            "whole_list.$.latest_message_time": message_time
         }
     }, {
         new: true,

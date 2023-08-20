@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import styled from 'styled-components';
 import { useGlobalData } from "./reducer";
 import { useNavigate } from "react-router-dom";
-const ENDPOINT = '';
-// const ENDPOINT = 'https://sameep-chat-website.onrender.com';
-// const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'http://localhost:8000';
 
 const Loginpage = (props) => {
     const { state, dispatch } = useGlobalData();
@@ -44,6 +42,30 @@ const Loginpage = (props) => {
                 <div className="input-fields-div">
                     <label>Confirm Password</label>
                     <input name="cpassword" type="password" onChange={inputEvent} value={loginData.cpassword} placeholder="Confirm Password" />
+                </div>
+                <div>
+                    <input type="file" accept="image/*" id="imageInput" onChange={(event) => {
+                        const imageInput = document.getElementById('imageInput');
+                        const previewImage = document.getElementById('previewImage');
+
+                        const selectedFile = event.target.files[0];
+                        if (selectedFile) {
+                            const reader = new FileReader();
+
+                            reader.onload = function (e) {
+                                previewImage.src = e.target.result;
+                            };
+
+                            reader.readAsDataURL(selectedFile);
+                        }
+                    }} />
+                    <img id="previewImage" src="#" alt="Preview" style={{ maxWidth: "100px", maxHeight: "100px" }} />
+                    <button id="convertButton" onClick={(e) => {
+                        e.preventDefault();
+                        const previewImage = document.getElementById('previewImage');
+                        const imageUrl = previewImage.src;
+                        console.log({ 'Image URL:': imageUrl });
+                    }}>Convert and Use</button>
                 </div>
                 <button type="submit" onClick={async (e) => {
                     e.preventDefault();

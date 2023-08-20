@@ -8,9 +8,7 @@ import SelectedUserShow from './assets/SelectedUserShow';
 import ShowAllUsers from './assets/ShowAllUsers';
 import VideoUploader from './assets/Video';
 import { useGlobalData } from './assets/reducer';
-const ENDPOINT = '';
-// const ENDPOINT = 'https://sameep-chat-website.onrender.com';
-// const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'http://localhost:8000';
 
 const userPersonalDetail = {
   name: "Sameep",
@@ -85,9 +83,11 @@ function App() {
                   setLoginStatus={setLoginStatus}
                 /> :
                 <div className='main-container'>
-                  <UserShow
-                    setLoginStatus={setLoginStatus}
-                  />
+                  <div className='user-show-container'>
+                    <UserShow
+                      setLoginStatus={setLoginStatus}
+                    />
+                  </div>
                   <SelectedUserShow />
                 </div>
             }
@@ -129,15 +129,23 @@ const MainDiv = styled.div`
   font-weight: 600;
   width: 100vw;
   margin: auto;
-  ul{
+  /* ul{
     display: flex;
     flex-direction: row;
     gap: 3rem;
-  }
+  } */
   .main-container{
     display: flex;
     flex-direction: row;
-    width: 90vw;
+    /* margin: 2rem; */
+    height: 100%;
+    width: 100%;
+  }
+  @media screen and (max-width: 850px) {
+    .main-container{
+      width: 100%;
+    }
+    
   }
 `;
 
