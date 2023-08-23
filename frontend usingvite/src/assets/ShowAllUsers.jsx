@@ -2,25 +2,43 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGlobalData } from "./reducer";
 import styled from "styled-components";
+import { ENDPOINT } from '../HideData';
 // const ENDPOINT = 'http://localhost:8000';
-const ENDPOINT = 'https://sameep-chat-website.onrender.com';
+// const ENDPOINT = 'https://sameep-chat-website.onrender.com';
 
-const ShowAllUsers = () => {
+const ShowAllUsers = (props) => {
     const [allUsers, setAllUsers] = useState([]);
+    const [allGroups, setAllGroups] = useState([]);
+    const [loadingGroups, setLoadingGroups] = useState(false);
+    const [loadingUsers, setLoadingUsers] = useState(false);
+
+
     const { state, dispatch } = useGlobalData();
     const navigate = useNavigate();
     const id = localStorage.getItem('token');
 
     const fetchUsers = async () => {
-        const response = await fetch(`${ENDPOINT}/getusers`);
+        setLoadingUsers(true);
+        const response = await fetch(`${ENDPOINT}/user/getusers`);
         const data = await response.json();
         setAllUsers(data);
+        setLoadingUsers(false);
+    };
+    const fetchGroups = async () => {
+        setLoadingGroups(true);
+        try {
+            const response = await fetch(`${ENDPOINT}/group`);
+            const data = await response.json();
+            setAllGroups(data);
+            setLoadingGroups(false);
+        } catch (error) {
+            console.log(error);
+            setLoadingGroups(false);
+        }
     };
 
     const startConversation = async (index) => {
-        console.log(allUsers);
-        console.log(index);
-        const response_sender = await fetch(`${ENDPOINT}/startconversation/${id}`, {
+        const response_sender = await fetch(`${ENDPOINT}/user/startconversation/${id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -30,7 +48,7 @@ const ShowAllUsers = () => {
                 _id: allUsers[index]._id
             }),
         });
-        const response_receiver = await fetch(`${ENDPOINT}/startconversation/${allUsers[index]._id}`, {
+        const response_receiver = await fetch(`${ENDPOINT}/user/startconversation/${allUsers[index]._id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -46,25 +64,68 @@ const ShowAllUsers = () => {
         console.log({ sender_data: sender_data });
         console.log({ receiver_data: receiver_data });
         navigate('/');
+        props.setShowUsers(false);
     };
+
+    const joinGroup = async (group_id) => {
+        const response = await fetch(`${ENDPOINT}/group/join/${group_id}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+        props.setSelectedUserChat(data._id);
+        props.setShowUsers(false);
+    };
+
     useEffect(() => {
         fetchUsers();
+        fetchGroups();
     }, []);
 
     return (
         <MainDiv>
-            <h3>All Users</h3>
-            {
-                allUsers ?
-                    allUsers.map((user, index) => {
-                        if (user._id !== id)
-                            return (
-                                <div key={user._id} className="all-users" onClick={() => {
-                                    startConversation(index);
-                                }}>{user.name}</div>
-                            );
-                    }) : null
-            }
+            <button onClick={() => {
+                props.setShowUsers(false);
+            }} style={{ margin: '1rem' }}>Go Back</button>
+            <div style={{ color: 'aqua' }}>Users:</div>
+            <div>
+                {
+                    loadingUsers ?
+                        <i className="fa-solid fa-spinner fa-spin-pulse"></i> :
+                        <>
+                            {
+                                allUsers ?
+                                    allUsers.map((user, index) => {
+                                        if (user._id !== id)
+                                            return (
+                                                <div key={user._id} className="all-users" onClick={() => {
+                                                    startConversation(index);
+                                                }}>{user.name}</div>
+                                            );
+                                    }) :
+                                    null
+                            }
+                        </>
+                }
+            </div>
+            <div style={{ color: 'aqua' }}>Groups:</div>
+            <div>
+                {
+                    loadingGroups ?
+                        <i className="fa-solid fa-spinner fa-spin-pulse"></i> :
+                        <>{
+                            allGroups ?
+                                allGroups.map((group, index) => {
+                                    return (
+                                        <div key={group._id} className="all-users" onClick={() => {
+                                            joinGroup(group._id);
+                                        }}>{group.group_name}</div>
+                                    );
+                                }) : null
+                        }
+                        </>
+                }
+            </div>
         </MainDiv>
     );
 };
@@ -75,11 +136,14 @@ const MainDiv = styled.div`
     justify-content: center;
     align-items: center;
     margin: auto;
+    background-color: #454546;
+    height: 100vh;
+    min-width: 35rem;
     .all-users{
         padding: 1rem;
         cursor: pointer;
         &:hover{
-            background-color: #454546;
+            background-color: #303031;
         }
     }
 `;

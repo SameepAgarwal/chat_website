@@ -138,8 +138,61 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
-@media screen and (max-width: 850px) {
+.menu-btn {
+  display: none;
+}
+
+.user-show-container {
+  display: block;
+}
+
+.create-new-group {
+  top: 35%;
+  left: 35%;
+  width: 40%;
+  height: 30%;
+  border-radius: 1rem;
+}
+
+@media (min-width: 850px) {
   .user-show-container {
+    display: block !important;
+    opacity: 1 !important;
+  }
+}
+
+@media screen and (max-width: 850px) {
+  .menu-btn {
+    display: block;
+    position: static;
+  }
+
+  .user-show-container {
+    z-index: 2;
     display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    transition: all .9s ease-in-out;
+  }
+
+  .create-new-group {
+    left: 5%;
+    width: 90%;
+    height: 50%;
+  }
+
+  .create-group-btn-div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .create-group-btn-div button {
+    margin: 0 !important;
+    padding: 1rem .4rem;
   }
 }

@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import styled from 'styled-components';
 import { useGlobalData } from "./reducer";
 import { useNavigate } from "react-router-dom";
+import { ENDPOINT } from '../HideData';
 // const ENDPOINT = 'http://localhost:8000';
-const ENDPOINT = 'https://sameep-chat-website.onrender.com';
+// const ENDPOINT = 'https://sameep-chat-website.onrender.com';
 
 const Loginpage = (props) => {
     const { state, dispatch } = useGlobalData();
@@ -19,6 +20,43 @@ const Loginpage = (props) => {
         const name = e.target.name;
         const value = e.target.value;
         setLoginData({ ...loginData, [name]: value });
+    };
+    const loginUser = async () => {
+        const { name, number, email, password, cpassword } = loginData;
+        if (!name || !number || !email || !password || !cpassword) {
+            alert("Please fill all the fields");
+            return;
+        }
+        if (password !== cpassword) {
+            alert("Password must be same");
+            return;
+        }
+        try {
+            const response = await fetch(`${ENDPOINT}/user/newuser`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name,
+                    number,
+                    email,
+                    password,
+                    cpassword,
+                    whole_list: [],
+                }),
+            });
+            const data = await response.json();
+            console.log({ logindata: data });
+            localStorage.setItem("token", data._id, {
+                expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+            });
+            dispatch({ type: 'USERSDATA', payload: data });
+            props.setLoginStatus(true);
+        } catch (error) {
+            alert('An Error occurred');
+            console.log(error);
+        }
     };
     return (
         <MainDiv>
@@ -70,32 +108,7 @@ const Loginpage = (props) => {
                 </div> */}
                 <button type="submit" onClick={async (e) => {
                     e.preventDefault();
-                    const { name, number, email, password, cpassword } = loginData;
-                    if (!name || !number || !email || !password || !cpassword) {
-                        alert("Please fill all the fields");
-                        return;
-                    }
-                    const response = await fetch(`${ENDPOINT}/newuser`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            name,
-                            number,
-                            email,
-                            password,
-                            cpassword,
-                            whole_list: [],
-                        }),
-                    });
-                    const data = await response.json();
-                    console.log({ logindata: data });
-                    localStorage.setItem("token", data._id, {
-                        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-                    });
-                    dispatch({ type: 'USERSDATA', payload: data });
-                    props.setLoginStatus(true);
+                    await loginUser();
                 }}>Login</button>
             </form>
         </MainDiv>

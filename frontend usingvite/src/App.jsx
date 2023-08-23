@@ -8,24 +8,16 @@ import SelectedUserShow from './assets/SelectedUserShow';
 import ShowAllUsers from './assets/ShowAllUsers';
 import VideoUploader from './assets/Video';
 import { useGlobalData } from './assets/reducer';
+import { ENDPOINT } from './HideData';
 // const ENDPOINT = 'http://localhost:8000';
-const ENDPOINT = 'https://sameep-chat-website.onrender.com';
-
-const userPersonalDetail = {
-  name: "Sameep",
-  password: "123",
-  cpassword: "123",
-  number: 1234567891,
-  email: "sameep@gmail.com",
-  _id: "64d90b003edce4235b8aab2c"
-};
+import UserLoginPage from './assets/UserLoginPage';
 
 function App() {
   const [loginStatus, setLoginStatus] = useState(false);
   const { state, dispatch } = useGlobalData();
   const [userData, setUserData] = useState();
   const getDetail = async (id) => {
-    const user = await fetch(`${ENDPOINT}/getusers/${id}`);
+    const user = await fetch(`${ENDPOINT}/user/getusers/${id}`);
     const data = await user.json();
     setUserData(data);
     console.log({ data: data });
@@ -51,15 +43,26 @@ function App() {
                 <Loginpage
                   setLoginStatus={setLoginStatus}
                 /> :
-                <div className='main-container'>
-                  <UserShow
-                    setLoginStatus={setLoginStatus}
-                  />
-                </div>
+                <UserLoginPage
+                  setLoginStatus={setLoginStatus}
+                />
             }
           </MainDiv>
         } />
-        <Route exact path="/allusers" element={
+        <Route exact path='/user' element={
+          <MainDiv>
+            {
+              !loginStatus ?
+                <Loginpage
+                  setLoginStatus={setLoginStatus}
+                /> :
+                <UserLoginPage
+                  setLoginStatus={setLoginStatus}
+                />
+            }
+          </MainDiv>
+        } />
+        {/* <Route exact path="/allusers" element={
           <MainDiv>
             {
               !loginStatus ?
@@ -75,22 +78,17 @@ function App() {
                 </div>
             }
           </MainDiv>
-        } />
-        <Route exact path="/user/:id/:chatId" element={
+        } /> */}
+        <Route exact path="/user/:chatId" element={
           <MainDiv>
             {
               !loginStatus ?
                 <Loginpage
                   setLoginStatus={setLoginStatus}
                 /> :
-                <div className='main-container'>
-                  <div className='user-show-container'>
-                    <UserShow
-                      setLoginStatus={setLoginStatus}
-                    />
-                  </div>
-                  <SelectedUserShow />
-                </div>
+                <UserLoginPage
+                  setLoginStatus={setLoginStatus}
+                />
             }
           </MainDiv>
         } />

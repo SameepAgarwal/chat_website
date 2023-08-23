@@ -1,47 +1,57 @@
 import React, { useEffect, useState } from "react";
 import styled from 'styled-components';
-import whole_list from "../../domeWhatappData.json";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGlobalData } from "./reducer";
 import EmojiPicker from 'emoji-picker-react';
 import io from 'socket.io-client';
+import { ENDPOINT } from '../HideData';
 // const ENDPOINT = 'http://localhost:8000';
-const ENDPOINT = 'https://sameep-chat-website.onrender.com';
+// const ENDPOINT = 'https://sameep-chat-website.onrender.com';
+// const END_POINT = 'http://localhost:8000';
 var socket;
 
 const SelectedUserShow = (props) => {
-    const { id, chatId } = useParams();
+    const chatId = props.selectedUserChat;
     const { state, dispatch } = useGlobalData();
+    let id = state !== undefined ? state.id : undefined;
     const [messages, setMessages] = useState([]);
     const [newMessages, setNewMessages] = useState('');
     const [user, setUser] = useState();
+    const [name, setName] = useState('');
+    const [onlineStatus, setOnlineStatus] = useState(false);
+    const [typingStatus, setTypingStatus] = useState(false);
     const navigate = useNavigate();
 
     const [loadingAnimation, setLoadingAnimation] = useState(false);
+
     let scroll_to_bottom = document.querySelector('#scroll-msg');
-    const [name, setName] = useState('');
 
     function scrollBottom(element) {
         element.scroll({ top: element.scrollHeight, behavior: "smooth" });
     }
-    const handleEmojiSelect = (emoji) => {
-        setNewMessages(newMessageObject + emoji.native);
-    };
 
     const findUserMessages = async () => {
-        const response = await fetch(`${ENDPOINT}/getmessages/${id}/${chatId}`);
+        const response = await fetch(`${ENDPOINT}/message/getmessages/${id}/${chatId}`);
         const data = await response.json();
     };
     const fetchMessages = async () => {
         setLoadingAnimation(true);
         try {
-            const response = await fetch(`${ENDPOINT}/getusers/${id}/${chatId}`);
+            const response = await fetch(`${ENDPOINT}/user/getusers/${id}/${chatId}`);
             const data = await response.json();
+
+            // chat person data
             setUser(data);
+
+            //chat person name
             setName(data.name);
+
+            //chat person messages array
             setMessages(data.messages);
+
             setLoadingAnimation(false);
             socket.emit('join chat', id);
+
         } catch (error) {
             console.log({ error: error.message });
             setLoadingAnimation(false);
@@ -63,7 +73,7 @@ const SelectedUserShow = (props) => {
             "message_time": new Date(Date.now()).toLocaleTimeString(),
             "sender_name": state.name
         };
-        const response_sender = await fetch(`${ENDPOINT}/newmessage/sender/${id}/${chatId}`, {
+        const response_sender = await fetch(`${ENDPOINT}/message/newmessage/sender/${id}/${chatId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -77,7 +87,7 @@ const SelectedUserShow = (props) => {
             "message_time": new Date(Date.now()).toLocaleTimeString(),
             "sender_name": state.name
         };
-        const response_receiver = await fetch(`${ENDPOINT}/newmessage/receiver/${data_sender.sender_id}/${id}`, {
+        const response_receiver = await fetch(`${ENDPOINT}/message/newmessage/receiver/${data_sender.sender_id}/${state._id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -87,15 +97,43 @@ const SelectedUserShow = (props) => {
 
         const data_receiver = await response_receiver.json();
         setNewMessages("");
-        const newMessageObject = { message: newMessageSenderObj.message, message_time: newMessageSenderObj.message_time, sender_name: newMessageSenderObj.sender_name, receiver_id: data_sender.sender_id };
+        const newMessageObject = { message: newMessageSenderObj.message, message_time: newMessageSenderObj.message_time, sender_name: newMessageSenderObj.sender_name, receiver_id: data_sender.sender_id, _id: data_receiver._id };
+        console.log({ data_receiver: data_receiver });
+
+        setMessages([...messages, data_receiver]);
+
         socket.emit('new message', newMessageObject);
-        setMessages([...messages, newMessageSenderObj]);
         setLoadingAnimation(false);
         if (scroll_to_bottom) scrollBottom(scroll_to_bottom);
+        // console.log("sent");
     };
 
     useEffect(() => {
-        fetchMessages();
+        if (state == undefined) {
+            navigate('/');
+        }
+        else {
+            // console.log({ state_from_selecctedUser: state });
+            id = state._id;
+            // setId(state._id);
+            fetchMessages();
+            setOnlineStatus(false);
+        }
+        if (socket) socket.emit("online", id);
+        if (user != undefined)
+            if (socket) socket.on("check online", (_id) => {
+                if (user.sender_id == _id) {
+                    setOnlineStatus(true);
+                    // console.log(user.sender_id);
+                    socket.emit("confirm online", id);
+                }
+            });
+        if (socket) socket.on("online confirm", (_id) => {
+            if (id == _id) {
+                // console.log(_id);
+                setOnlineStatus(true);
+            }
+        });
     }, [chatId]);
 
     useEffect(() => {
@@ -108,34 +146,70 @@ const SelectedUserShow = (props) => {
 
     useEffect(() => {
         socket.on("message received", (messageObject) => {
-            if (messageObject.receiver_id === id) {
-                console.log({ messageObject: messageObject });
-                setMessages([...messages, messageObject]);
+            console.log(state);
+            if (messageObject.receiver_id === state._id) {
+
+                // console.log({ messageObject: messageObject });
+                // console.log({ messages: messages });
+                console.log({ id: id });
+                setMessages([...messages, { message: messageObject.message, message_time: messageObject.message_time, sender_name: messageObject.sender_name, _id: messageObject._id }]);
                 if (scroll_to_bottom)
                     scrollBottom(scroll_to_bottom);
             }
         });
-        if (scroll_to_bottom)
-            scrollBottom(scroll_to_bottom);
-    });
+        if (scroll_to_bottom) scrollBottom(scroll_to_bottom);
+        socket.emit("online", id);
+        if (user !== undefined)
+            socket.on("check online", (_id) => {
+                if (user.sender_id == _id) {
+                    setOnlineStatus(true);
+                    console.log(user.sender_id);
+                    // socket.emit("confirm online", id);
+                }
+            });
+        // socket.on("online confirm", (_id) => {
+        //     if (id == _id) {
+        //         console.log(_id);
+        //     }
+        // });
+    }, [messages, newMessages, onlineStatus]);
 
     return (
-        <SelectedUser>
+        <SelectedUser onDoubleClick={() => {
+            if (window.innerWidth <= 850) {
+                const user_show = document.querySelector('.user-show-container');
+                user_show.style.display = 'none';
+                user_show.style.opacity = 0;
+            }
+        }}>
             <div className="user-details-div">
                 {
-                    window.innerWidth < 850 ?
-                        <i class="fa-solid fa-arrow-left" style={{
-                            cursor: 'pointer',
-                            backgroundColor: '#2e2e2e',
-                            padding: '1rem',
-                            borderRadius: '50%'
-                        }} onClick={() => {
-                            navigate('/');
-                        }}></i> : null
+                    <i className="fa-solid fa-bars menu-btn" style={{
+                        cursor: 'pointer',
+                        backgroundColor: '#2e2e2e',
+                        padding: '1rem',
+                        borderRadius: '50%'
+                    }} onClick={() => {
+                        if (window.innerWidth <= 850) {
+                            const user_show = document.querySelector('.user-show-container');
+                            user_show.style.display = 'flex';
+                            user_show.style.opacity = 1;
+                        }
+                    }}></i>
                 }
-                <img src="../../sameep.jpeg" alt="My Image" className="selected-user-image" />
+                {
+                    user !== undefined && user.icon ?
+                        <img src="../../sameep.jpeg" alt="My Image" className="selected-user-image" />
+                        :
+                        <div className="selected-user-image">
+                            <i className="fa-solid fa-user"></i>
+                        </div>
+                }
                 <h4>
                     {user !== undefined ? user.name : <></>}
+                    {
+                        onlineStatus ? <p style={{ color: '#2e3e' }}>Online</p> : <p style={{ color: 'red' }}>Offline</p>
+                    }
                 </h4>
                 <div className="search-message">
                     <i className="fa-solid fa-magnifying-glass" onClick={findUserMessages}></i>
@@ -160,7 +234,7 @@ const SelectedUserShow = (props) => {
                                 :
                                 <div className="messages" id="scroll-msg" >
                                     {
-                                        !state === undefined || messages.length > 0 ?
+                                        messages.length > 0 ?
                                             messages.map((currMes, msgIndex) => {
                                                 if (currMes.sender_name !== name) {
                                                     return <div key={currMes._id} className="sended-message-div">
@@ -173,12 +247,27 @@ const SelectedUserShow = (props) => {
                                                                 fontSize: '1rem'
                                                             }}>{currMes.message_time}</p>
                                                         </div>
-                                                        <img src="../../../sameep.jpeg" alt="My Image" className="sender-image" />
+                                                        {/* <img src="../../../sameep.jpeg" alt="My Image" className="sender-image" /> */}
+                                                        {
+                                                            user !== undefined && !user.icon ?
+                                                                <img src="../../sameep.jpeg" alt="My Image" className="sender-image" />
+                                                                :
+                                                                <div className="sender-image">
+                                                                    <i className="fa-solid fa-user"></i>
+                                                                </div>
+                                                        }
                                                     </div>;
                                                 }
                                                 else {
                                                     return <div key={currMes._id} className="received-message-div">
-                                                        <img src="../../../sameep.jpeg" alt="My Image" className="receiver-image" />
+                                                        {
+                                                            user !== undefined && user.icon ?
+                                                                <img src="../../sameep.jpeg" alt="My Image" className="receiver-image" />
+                                                                :
+                                                                <div className="receiver-image">
+                                                                    <i className="fa-solid fa-user"></i>
+                                                                </div>
+                                                        }
                                                         <div className="receiver-message">
                                                             <p style={{
                                                                 color: '#20bf3e'
@@ -227,7 +316,6 @@ const SelectedUserShow = (props) => {
                 <input type="text" className="message-input" autoComplete="off" onChange={(e) => {
                     setNewMessages(e.target.value);
                 }} onKeyDown={(press) => {
-                    ``;
                     if (press.key === 'Enter') {
                         sendMessages();
                     }
@@ -269,8 +357,15 @@ const SelectedUser = styled.section`
             }
         }
         .selected-user-image{
-            height: 5rem;
+            /* height: 5rem;
             border-radius: 50%;
+            background-color: #3c3a3a; */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            height: 5rem;
+            width: 5rem;
         }
         .search-message{
             margin-left: auto;
